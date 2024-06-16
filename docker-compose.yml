@@ -1,0 +1,66 @@
+version: '3.7'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: magento-web
+    ports:
+      - "8000:80"
+    volumes:
+      - ./code:/var/www/html
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=magento
+      - MYSQL_USER=magento
+      - MYSQL_PASSWORD=magento
+      - OPENSEARCH_HOST=elasticsearch  # Use service name of Elasticsearch container
+    depends_on:
+      - db
+      - elasticsearch
+    networks:
+      - magento
+
+  db:
+    image: mariadb:10.4
+    container_name: magento-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: magento
+      MYSQL_USER: magento
+      MYSQL_PASSWORD: magento
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - magento
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: magento-phpmyadmin
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - magento
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    container_name: magento-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    networks:
+      - magento
+
+volumes:
+  db_data:
+
+networks:
+  magento:
+    driver: bridge
