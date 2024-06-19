@@ -31,7 +31,21 @@ Follow these instructions to set up Magento 2 in a Docker development environmen
     docker compose up --build
     ```
 
-5. **Run Magento setup**:
+5. **Build and start the Docker containers**:
+
+    ```sh
+    docker compose up exec web composer install
+    ```
+
+5. **Set correct permissions**:
+    ```
+    docker compose exec web find var generated vendor pub/static pub/media app/etc -type f -exec chmod g+w {} +
+    docker compose exec web find var generated vendor pub/static pub/media app/etc -type d -exec chmod g+ws {} +
+    docker compose exec web chown -R :www-data . # Ubuntu
+    docker compose exec web chmod u+x bin/magento
+    ```
+
+6. **Run Magento setup**:
 
     After the containers are up and running, execute the Magento setup within the web container:
 
@@ -56,10 +70,9 @@ Follow these instructions to set up Magento 2 in a Docker development environmen
     --elasticsearch-port=9200
     ```
 
-6. **Access Magento**:
+7. **Access Magento**:
 
     - **Frontend**: [http://localhost:8000](http://localhost:8000)
-    - **Backend**: [http://localhost:8000/admin](http://localhost:8000/admin) (use the admin credentials set during the setup)
 
 ### Project Structure
 

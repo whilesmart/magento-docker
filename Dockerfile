@@ -37,6 +37,7 @@ RUN install-php-extensions bcmath \
         pdo \
         pdo_mysql \
         redis \
+        sockets \
         soap \
         sodium \
         sysvsem \
